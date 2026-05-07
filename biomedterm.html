@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Biomedical Terminology Study Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1419;
+    --bg-soft: #1a212b;
+    --bg-card: #232c38;
+    --ink: #f0e9dc;
+    --ink-soft: #a89e8c;
+    --ink-muted: #6a6256;
+    --accent: #ff8c5a;
+    --accent-soft: #ffb38a;
+    --gold: #f4c95d;
+    --green: #7dd87d;
+    --green-bg: rgba(125, 216, 125, 0.12);
+    --red: #ff6b6b;
+    --red-bg: rgba(255, 107, 107, 0.12);
+    --blue: #6db3f2;
+    --purple: #c084fc;
+    --border: rgba(240, 233, 220, 0.1);
+    --border-strong: rgba(240, 233, 220, 0.25);
+  }
+
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(at 15% 20%, rgba(255, 140, 90, 0.08) 0%, transparent 40%),
+      radial-gradient(at 85% 80%, rgba(192, 132, 252, 0.06) 0%, transparent 40%),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='0.04'/></svg>");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body {
+    min-height: 100vh;
+    padding: 32px 20px;
+    position: relative;
+  }
+
+  .wrapper {
+    max-width: 760px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    margin-bottom: 36px;
+    text-align: center;
+  }
+
+  .eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  h1 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    margin-top: 8px;
+  }
+
+  /* MODE PICKER (HOME) */
+  .mode-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .mode-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-align: left;
+    color: inherit;
+    font-family: inherit;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mode-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--card-accent, var(--accent));
+    opacity: 0.8;
+  }
+
+  .mode-card:hover {
+    border-color: var(--card-accent, var(--accent));
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+  }
+
+  .mode-icon {
+    font-size: 2rem;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .mode-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.3rem;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+
+  .mode-desc {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    line-height: 1.4;
+  }
+
+  .mode-meta {
+    margin-top: 12px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--ink-muted);
+    font-weight: 600;
+  }
+
+  /* TOP BAR (during a mode) */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .back-btn {
+    background: transparent;
+    border: 1px solid var(--border-strong);
+    color: var(--ink-soft);
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .back-btn:hover {
+    background: var(--bg-card);
+    color: var(--ink);
+  }
+
+  .mode-label {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--ink);
+  }
+
+  .progress-readout {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+  }
+
+  .progress-bar {
+    height: 4px;
+    background: var(--bg-card);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+    transition: width 0.4s ease;
+    border-radius: 999px;
+  }
+
+  /* SHARED CARD */
+  .panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 32px 28px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  }
+
+  .panel-tag {
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+
+  /* FLASHCARDS */
+  .flash-stage {
+    perspective: 1600px;
+    margin-bottom: 20px;
+    min-height: 320px;
+  }
+
+  .flash-card {
+    position: relative;
+    width: 100%;
+    min-height: 320px;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+    cursor: pointer;
+  }
+
+  .flash-card.flipped { transform: rotateY(180deg); }
+
+  .flash-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    padding: 36px 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+
+  .flash-back {
+    transform: rotateY(180deg);
+    background: linear-gradient(135deg, #2a3340 0%, #1f2630 100%);
+  }
+
+  .flash-term {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+
+  .flash-term.wordpart {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--gold);
+    font-weight: 400;
+  }
+
+  .flash-hint {
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+    font-style: italic;
+    margin-top: 18px;
+  }
+
+  .flash-def {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.1rem, 3vw, 1.4rem);
+    line-height: 1.4;
+    color: var(--ink);
+    margin-bottom: 14px;
+  }
+
+  .flash-extra {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    font-style: italic;
+    max-width: 480px;
+  }
+
+  .flash-extra::before {
+    content: '— ';
+    color: var(--accent);
+  }
+
+  .deck-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .deck-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    color: var(--ink-soft);
+    padding: 7px 14px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.2s;
+    font-family: inherit;
+    font-weight: 500;
+  }
+
+  .deck-btn:hover { color: var(--ink); border-color: var(--accent); }
+  .deck-btn.active { background: var(--accent); color: #1a1410; border-color: var(--accent); font-weight: 600; }
+
+  /* CONTROLS */
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .nav-btn {
+    background: transparent;
+    border: 1px solid var(--border-strong);
+    color: var(--ink);
+    padding: 12px 18px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.2s;
+  }
+
+  .nav-btn:hover:not(:disabled) {
+    background: var(--bg-soft);
+    border-color: var(--accent);
+  }
+
+  .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .primary-btn {
+    background: var(--accent);
+    color: #1a1410;
+    border: none;
+    padding: 12px 28px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 999px;
+    letter-spacing: 0.03em;
+    transition: all 0.2s;
+    box-shadow: 0 4px 14px rgba(255, 140, 90, 0.3);
+  }
+
+  .primary-btn:hover { background: var(--accent-soft); transform: translateY(-1px); }
+  .primary-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .rating {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .rate-btn {
+    padding: 12px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 10px;
+    border: 1px solid;
+    transition: all 0.2s;
+    background: transparent;
+  }
+
+  .rate-btn.know { border-color: var(--green); color: var(--green); }
+  .rate-btn.know:hover { background: var(--green); color: var(--bg); }
+  .rate-btn.review { border-color: var(--red); color: var(--red); }
+  .rate-btn.review:hover { background: var(--red); color: white; }
+
+  .utilities {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .util-btn {
+    background: transparent;
+    border: none;
+    color: var(--ink-muted);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.8rem;
+    text-decoration: underline;
+    text-decoration-color: rgba(168, 158, 140, 0.3);
+    text-underline-offset: 4px;
+    transition: color 0.2s;
+    padding: 4px 8px;
+  }
+
+  .util-btn:hover { color: var(--accent); }
+
+  /* QUIZ */
+  .quiz-question {
+    font-family: 'Fraunces', serif;
+    font-size: 1.3rem;
+    line-height: 1.4;
+    margin-bottom: 24px;
+    color: var(--ink);
+  }
+
+  .quiz-prompt {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+    font-style: italic;
+  }
+
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .quiz-option {
+    background: var(--bg-soft);
+    border: 1.5px solid var(--border);
+    color: var(--ink);
+    padding: 14px 18px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.15s;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .quiz-option:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: var(--bg-card);
+    transform: translateX(2px);
+  }
+
+  .quiz-option:disabled { cursor: default; }
+
+  .quiz-option .letter {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--ink-muted);
+    min-width: 22px;
+  }
+
+  .quiz-option.correct {
+    background: var(--green-bg);
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .quiz-option.correct .letter { color: var(--green); }
+
+  .quiz-option.wrong {
+    background: var(--red-bg);
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .quiz-option.wrong .letter { color: var(--red); }
+
+  .explanation {
+    background: var(--bg-soft);
+    border-left: 3px solid var(--accent);
+    padding: 14px 18px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    margin-bottom: 18px;
+    display: none;
+  }
+
+  .explanation.show { display: block; animation: slideIn 0.3s ease; }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .explanation strong { color: var(--ink); }
+
+  /* WORD BUILDER */
+  .builder-term {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(1.8rem, 5vw, 2.4rem);
+    text-align: center;
+    margin-bottom: 8px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+
+  .builder-prompt {
+    text-align: center;
+    color: var(--ink-soft);
+    margin-bottom: 28px;
+    font-size: 0.9rem;
+  }
+
+  .slots {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+
+  .slot {
+    background: var(--bg-soft);
+    border: 2px dashed var(--border-strong);
+    border-radius: 10px;
+    padding: 14px 20px;
+    min-width: 110px;
+    text-align: center;
+    transition: all 0.2s;
+  }
+
+  .slot.filled {
+    border-style: solid;
+    border-color: var(--accent);
+    background: var(--bg-card);
+  }
+
+  .slot.correct {
+    border-color: var(--green);
+    background: var(--green-bg);
+  }
+
+  .slot-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--ink-muted);
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+
+  .slot-content {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    color: var(--gold);
+    min-height: 22px;
+  }
+
+  .slot.filled .slot-content { color: var(--accent); }
+  .slot.correct .slot-content { color: var(--green); }
+
+  .word-bank {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .chip {
+    background: var(--bg-soft);
+    border: 1.5px solid var(--border-strong);
+    color: var(--ink);
+    padding: 8px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.15s;
+  }
+
+  .chip:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: var(--bg-card);
+    transform: translateY(-2px);
+  }
+
+  .chip.used {
+    opacity: 0.25;
+    cursor: not-allowed;
+  }
+
+  .chip.wrong {
+    background: var(--red-bg);
+    border-color: var(--red);
+    animation: shake 0.4s;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+
+  /* SPELLING */
+  .spell-prompt {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .spell-def {
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem;
+    line-height: 1.4;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .spell-hint {
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+    font-style: italic;
+  }
+
+  .spell-input-wrap {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .spell-input {
+    flex: 1;
+    min-width: 200px;
+    background: var(--bg-soft);
+    border: 1.5px solid var(--border-strong);
+    color: var(--ink);
+    padding: 14px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .spell-input:focus { border-color: var(--accent); }
+  .spell-input.correct { border-color: var(--green); color: var(--green); }
+  .spell-input.wrong { border-color: var(--red); color: var(--red); }
+
+  .spell-feedback {
+    font-size: 0.9rem;
+    margin-bottom: 14px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    display: none;
+  }
+
+  .spell-feedback.show { display: block; }
+  .spell-feedback.correct { background: var(--green-bg); color: var(--green); border-left: 3px solid var(--green); }
+  .spell-feedback.wrong { background: var(--red-bg); color: var(--red); border-left: 3px solid var(--red); }
+
+  /* COMPLETION */
+  .complete {
+    text-align: center;
+    padding: 48px 32px;
+    background: var(--bg-card);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+  }
+
+  .complete-emoji { font-size: 3rem; margin-bottom: 14px; }
+
+  .complete-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 12px;
+    color: var(--ink);
+  }
+
+  .complete-stats {
+    color: var(--ink-soft);
+    margin-bottom: 24px;
+    font-size: 1rem;
+  }
+
+  .complete-stats strong { color: var(--gold); font-family: 'JetBrains Mono', monospace; }
+
+  .complete-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .kbd-hint {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+  }
+
+  kbd {
+    display: inline-block;
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    margin: 0 2px;
+  }
+
+  .stats-pills {
+    display: flex;
+    gap: 8px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+
+  .pill.streak {
+    background: rgba(244, 201, 93, 0.15);
+    color: var(--gold);
+  }
+  .pill.score {
+    background: rgba(125, 216, 125, 0.12);
+    color: var(--green);
+  }
+
+  @media (max-width: 540px) {
+    .mode-grid { grid-template-columns: 1fr; }
+    .controls { grid-template-columns: 1fr; }
+    .panel { padding: 24px 18px; }
+    .quiz-question { font-size: 1.1rem; }
+    .builder-term { font-size: 1.6rem; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrapper">
+    <header>
+      <div class="eyebrow">Spring 2026 Post-Test Prep</div>
+      <h1>Biomedical Terminology <em>Study Hub</em></h1>
+      <div class="subtitle" id="subtitle">Pick a study mode to begin</div>
+    </header>
+
+    <main id="app"></main>
+  </div>
+
+<script>
+  // ============================================================
+  // CONTENT — pulled from the post-test, expanded with related terms
+  // ============================================================
+
+  // Word parts: prefixes, suffixes, combining forms
+  const WORD_PARTS = [
+    // Prefixes
+    { type: 'prefix',  part: 'brady-',   meaning: 'slow',                example: 'bradycardia (slow heart rate)' },
+    { type: 'prefix',  part: 'tachy-',   meaning: 'fast',                example: 'tachycardia (fast heart rate)' },
+    { type: 'prefix',  part: 'hypo-',    meaning: 'deficient, under, below', example: 'hypoglycemia (low blood sugar)' },
+    { type: 'prefix',  part: 'hyper-',   meaning: 'excessive, above, over', example: 'hyperglycemia (high blood sugar)' },
+    { type: 'prefix',  part: 'endo-',    meaning: 'within, inside',      example: 'endoscope (instrument to view within)' },
+    { type: 'prefix',  part: 'peri-',    meaning: 'surrounding, around', example: 'pericardium (sac surrounding the heart)' },
+    { type: 'prefix',  part: 'retro-',   meaning: 'behind, backward',    example: 'retroperitoneal (behind the abdomen)' },
+    { type: 'prefix',  part: 'per-',     meaning: 'through',             example: 'percutaneous (through the skin)' },
+    { type: 'prefix',  part: 'an-',      meaning: 'without, not',        example: 'anuria (absence of urine)' },
+    { type: 'prefix',  part: 'dys-',     meaning: 'difficult, painful, abnormal', example: 'dyspnea (difficult breathing)' },
+    { type: 'prefix',  part: 'ex-',      meaning: 'out, outside',        example: 'exophthalmos (protrusion of an eyeball)' },
+    { type: 'prefix',  part: 'sub-',     meaning: 'below, under',        example: 'subcutaneous (below the skin)' },
+    { type: 'prefix',  part: 'epi-',     meaning: 'above, upon',         example: 'epidermis (upon the skin)' },
+    { type: 'prefix',  part: 'intra-',   meaning: 'within',              example: 'intravenous (within a vein)' },
+
+    // Suffixes
+    { type: 'suffix',  part: '-itis',    meaning: 'inflammation',        example: 'arthritis (inflammation of a joint)' },
+    { type: 'suffix',  part: '-ectomy',  meaning: 'surgical removal, resection', example: 'gastrectomy (resection of the stomach)' },
+    { type: 'suffix',  part: '-tomy',    meaning: 'incision, cutting into', example: 'osteotomy (incision of a bone)' },
+    { type: 'suffix',  part: '-scopy',   meaning: 'visual examination',  example: 'cystoscopy (visual examination of the bladder)' },
+    { type: 'suffix',  part: '-scope',   meaning: 'instrument for visual examination', example: 'endoscope (instrument to view within)' },
+    { type: 'suffix',  part: '-logy',    meaning: 'study of',            example: 'cytology (study of cells)' },
+    { type: 'suffix',  part: '-algia',   meaning: 'pain',                example: 'dentalgia (tooth pain)' },
+    { type: 'suffix',  part: '-oma',     meaning: 'tumor, mass',         example: 'carcinoma (cancerous tumor)' },
+    { type: 'suffix',  part: '-osis',    meaning: 'abnormal condition',  example: 'cyanosis (bluish coloration condition)' },
+    { type: 'suffix',  part: '-emia',    meaning: 'blood condition',     example: 'hyperglycemia (high sugar in blood)' },
+    { type: 'suffix',  part: '-genic',   meaning: 'produced by, producing', example: 'iatrogenic (produced by treatment)' },
+    { type: 'suffix',  part: '-plasty',  meaning: 'surgical repair',     example: 'angioplasty (surgical repair of a blood vessel)' },
+    { type: 'suffix',  part: '-lysis',   meaning: 'breakdown, destruction, separation', example: 'hemolysis (breakdown of blood cells)' },
+    { type: 'suffix',  part: '-malacia', meaning: 'softening',           example: 'osteomalacia (softening of bone)' },
+    { type: 'suffix',  part: '-sclerosis', meaning: 'hardening',         example: 'arteriosclerosis (hardening of arteries)' },
+    { type: 'suffix',  part: '-megaly',  meaning: 'enlargement',         example: 'hepatomegaly (enlargement of the liver)' },
+    { type: 'suffix',  part: '-uria',    meaning: 'urine condition',     example: 'anuria (absence of urine)' },
+    { type: 'suffix',  part: '-pnea',    meaning: 'breathing',           example: 'dyspnea (difficult breathing)' },
+    { type: 'suffix',  part: '-cele',    meaning: 'hernia, protrusion',  example: 'cystocele (bladder hernia)' },
+
+    // Combining Forms
+    { type: 'root',    part: 'cyt/o',    meaning: 'cell',                example: 'cytology (study of cells)' },
+    { type: 'root',    part: 'cyst/o',   meaning: 'urinary bladder, sac', example: 'cystoscopy (visual exam of bladder)' },
+    { type: 'root',    part: 'arthr/o',  meaning: 'joint',               example: 'arthritis (inflammation of a joint)' },
+    { type: 'root',    part: 'oste/o',   meaning: 'bone',                example: 'osteotomy (incision of a bone)' },
+    { type: 'root',    part: 'gastr/o',  meaning: 'stomach',             example: 'gastrectomy (resection of stomach)' },
+    { type: 'root',    part: 'hepat/o',  meaning: 'liver',               example: 'hepatitis (inflammation of the liver)' },
+    { type: 'root',    part: 'cost/o',   meaning: 'ribs',                example: 'costochondral (pertaining to ribs and cartilage)' },
+    { type: 'root',    part: 'derm/o',   meaning: 'skin',                example: 'dermatology (study of skin)' },
+    { type: 'root',    part: 'cardi/o',  meaning: 'heart',               example: 'cardiology (study of the heart)' },
+    { type: 'root',    part: 'hem/o',    meaning: 'blood',               example: 'hematoma (mass of blood)' },
+    { type: 'root',    part: 'cyan/o',   meaning: 'blue',                example: 'cyanosis (bluish coloration)' },
+    { type: 'root',    part: 'angi/o',   meaning: 'blood vessel',        example: 'angioplasty (repair of a blood vessel)' },
+    { type: 'root',    part: 'aden/o',   meaning: 'gland',               example: 'adenoma (gland tumor)' },
+    { type: 'root',    part: 'carcin/o', meaning: 'cancer',              example: 'carcinoma (cancerous tumor)' },
+    { type: 'root',    part: 'neur/o',   meaning: 'nerve',               example: 'neurotomy (incision of a nerve)' },
+    { type: 'root',    part: 'iatr/o',   meaning: 'treatment, physician', example: 'iatrogenic (produced by treatment)' },
+    { type: 'root',    part: 'ophthalm/o', meaning: 'eye',               example: 'exophthalmos (protrusion of eyeball)' },
+    { type: 'root',    part: 'glyc/o',   meaning: 'sugar, glucose',      example: 'hyperglycemia (high blood sugar)' },
+    { type: 'root',    part: 'path/o',   meaning: 'disease',             example: 'pathology (study of disease)' },
+    { type: 'root',    part: 'laryng/o', meaning: 'larynx (voice box)',  example: 'laryngitis (inflammation of voice box)' },
+    { type: 'root',    part: 'pharyng/o', meaning: 'pharynx (throat)',   example: 'pharyngitis (sore throat)' },
+    { type: 'root',    part: 'esophag/o', meaning: 'esophagus',          example: 'esophagitis (inflammation of esophagus)' },
+    { type: 'root',    part: 'dent/o',   meaning: 'tooth',               example: 'dentalgia (tooth pain)' },
+    { type: 'root',    part: 'cephal/o', meaning: 'head',                example: 'cephalgia (head pain, headache)' },
+    { type: 'root',    part: 'trich/o',  meaning: 'hair',                example: 'trichology (study of hair)' }
+  ];
+
+  // Multiple choice quiz questions — based on the post-test plus expansions
+  const QUIZ_QUESTIONS = [
+    // Direct test questions, lightly varied
+    {
+      q: 'Visual examination of the urinary bladder',
+      options: ['cystoscopy', 'cystoscope', 'cytology', 'cystectomy'],
+      correct: 0,
+      explain: '<strong>Cyst/o</strong> = bladder/sac, <strong>-scopy</strong> = visual examination. Don\'t confuse with cytology (study of cells).'
+    },
+    {
+      q: 'Which is spelled correctly?',
+      options: ['sistoscopy', 'cystascopy', 'cystoscopy'],
+      correct: 2,
+      explain: 'The combining form is <strong>cyst/o</strong> (bladder), and the suffix is <strong>-scopy</strong>. So: cyst + o + scopy.'
+    },
+    {
+      q: 'Arthritis means:',
+      options: ['Incision of a joint', 'Removal of a bone', 'Inflammation of a joint', 'Inflammation of a bone'],
+      correct: 2,
+      explain: '<strong>Arthr/o</strong> = joint, <strong>-itis</strong> = inflammation. (Inflammation of a bone would be osteitis.)'
+    },
+    {
+      q: 'Brady- means:',
+      options: ['Fast', 'Bad', 'Short', 'Slow', 'Large'],
+      correct: 3,
+      explain: '<strong>Brady-</strong> = slow (as in bradycardia, a slow heart rate). Its opposite is <strong>tachy-</strong> (fast).'
+    },
+    {
+      q: 'A wheal or hive is a(n):',
+      options: ['Macule', 'Wart', 'Polyp', 'Ulcer', 'Urticaria'],
+      correct: 4,
+      explain: '<strong>Urticaria</strong> is the medical term for hives — raised, itchy welts on the skin.'
+    },
+    {
+      q: 'Cancerous tumor:',
+      options: ['Hematoma', 'Adenoma', 'Carcinoma', 'Carcinogenic', 'Neurotomy'],
+      correct: 2,
+      explain: '<strong>Carcin/o</strong> = cancer, <strong>-oma</strong> = tumor. (Carcinogenic means cancer-causing.)'
+    },
+    {
+      q: 'Voice box:',
+      options: ['Bronchial tube', 'Pharynx', 'Esophagus', 'Larynx', 'Tongue'],
+      correct: 3,
+      explain: 'The <strong>larynx</strong> contains the vocal cords. The <strong>pharynx</strong> is the throat; the <strong>esophagus</strong> carries food to the stomach.'
+    },
+    {
+      q: 'Absence of (no) urine production:',
+      options: ['Diuresis', 'Anuria', 'Voiding', 'Micturition', 'Nocturia'],
+      correct: 1,
+      explain: '<strong>An-</strong> = without, <strong>-uria</strong> = urine condition. (Nocturia = urinating at night; diuresis = excessive urine.)'
+    },
+    {
+      q: 'Incision of a bone:',
+      options: ['Sarcoma', 'Pathogenic', 'Osteotomy', 'Ostectomy', 'Endoscopy'],
+      correct: 2,
+      explain: '<strong>Oste/o</strong> = bone, <strong>-tomy</strong> = incision. (Ostectomy would be removal of bone.)'
+    },
+    {
+      q: 'Dyspnea:',
+      options: ['Abnormal formation', 'Difficult breathing', 'Inability to sleep', 'Lack of water', 'Inability to breathe'],
+      correct: 1,
+      explain: '<strong>Dys-</strong> = difficult, <strong>-pnea</strong> = breathing. Note: difficult, not impossible.'
+    },
+    {
+      q: 'cost/o means:',
+      options: ['wrist bones', 'ribs', 'to cut'],
+      correct: 1,
+      explain: '<strong>Cost/o</strong> = ribs (as in costochondral, intercostal). Don\'t confuse with carp/o (wrist bones).'
+    },
+    {
+      q: 'Which prefix means "fast"?',
+      options: ['tachy-', 'brady-', 'hypo-'],
+      correct: 0,
+      explain: '<strong>Tachy-</strong> = fast (tachycardia). <strong>Brady-</strong> is its opposite (slow).'
+    },
+    {
+      q: '-lysis means:',
+      options: ['blood condition', 'softening', 'breakdown, destruction, separation'],
+      correct: 2,
+      explain: '<strong>-lysis</strong> = breakdown (e.g., hemolysis = breakdown of blood cells). Don\'t mix with <strong>-malacia</strong> (softening).'
+    },
+    {
+      q: 'Study of cells:',
+      options: ['Pathology', 'Cytology', 'Cystology', 'Dermatology', 'Hematology'],
+      correct: 1,
+      explain: '<strong>Cyt/o</strong> = cell, <strong>-logy</strong> = study of. Watch the spelling: <em>cyt</em>ology, not <em>cyst</em>ology.'
+    },
+    {
+      q: 'Tooth pain:',
+      options: ['Dental caries', 'Cephalgia', 'Dentalgia', 'Cardiospasm', 'Periodontal abscess'],
+      correct: 2,
+      explain: '<strong>Dent/o</strong> = tooth, <strong>-algia</strong> = pain. (Cephalgia = headache; dental caries = tooth decay.)'
+    },
+    {
+      q: 'hepat/o means:',
+      options: ['liver', 'blood', 'kidney'],
+      correct: 0,
+      explain: '<strong>Hepat/o</strong> = liver (hepatitis, hepatomegaly). Blood is <strong>hem/o</strong>; kidney is <strong>nephr/o</strong> or <strong>ren/o</strong>.'
+    },
+    {
+      q: 'Cyanosis:',
+      options: ['Bluish coloration of skin', 'Yellow coloration of skin', 'Associated with hemangioma', 'Atherosclerosis', 'Increased oxygen in blood'],
+      correct: 0,
+      explain: '<strong>Cyan/o</strong> = blue, <strong>-osis</strong> = abnormal condition. Caused by low oxygen in the blood. (Yellow coloration = jaundice/icterus.)'
+    },
+    {
+      q: 'Percutaneous:',
+      options: ['Within a vein', 'Through a vein', 'Through the skin', 'Surrounding cartilage', 'Surrounding a bone'],
+      correct: 2,
+      explain: '<strong>Per-</strong> = through, <strong>cutane/o</strong> = skin. (Within a vein would be intravenous.)'
+    },
+    {
+      q: 'Retroperitoneal:',
+      options: ['Region of stomach', 'Within chest', 'Behind abdomen', 'Within abdomen', 'Below pelvis'],
+      correct: 2,
+      explain: '<strong>Retro-</strong> = behind, <strong>peritoneal</strong> = pertaining to the abdominal cavity. The kidneys are retroperitoneal.'
+    },
+    {
+      q: 'In the word "cytology," which syllable is accented?',
+      options: ['cy', 'tol', 'o', 'gy'],
+      correct: 1,
+      explain: 'Pronounced "sigh-<strong>TOL</strong>-uh-jee" — the accent falls on <strong>tol</strong>.'
+    },
+    {
+      q: 'Gastrectomy:',
+      options: ['Gastric resection', 'Intestinal incision', 'Tumor of stomach', 'Incision of stomach', 'Resection of intestine'],
+      correct: 0,
+      explain: '<strong>Gastr/o</strong> = stomach, <strong>-ectomy</strong> = surgical removal/resection. So: surgical resection of the stomach.'
+    },
+    {
+      q: 'Iatrogenic means:',
+      options: ['Pertaining to produced by treatment', 'Produced by mind', 'Cancer producing', 'Producing a tumor', 'Cutting into tumor'],
+      correct: 0,
+      explain: '<strong>Iatr/o</strong> = treatment/physician, <strong>-genic</strong> = produced by. An iatrogenic illness is caused by medical care.'
+    },
+    {
+      q: 'Protrusion of an eyeball:',
+      options: ['Cystocele', 'Inguinal hernia', 'Ectopic', 'Exophthalmos'],
+      correct: 3,
+      explain: '<strong>Ex-</strong> = out, <strong>ophthalm/o</strong> = eye. Spelling tip: ex-OPH-thalmos has TWO h\'s.'
+    },
+    {
+      q: 'High level of sugar in blood:',
+      options: ['Hematoma', 'Hypodermic', 'Hypoglycemia', 'Hyperglycemia', 'Hypogastric'],
+      correct: 3,
+      explain: '<strong>Hyper-</strong> = high/excessive, <strong>glyc/o</strong> = sugar, <strong>-emia</strong> = blood condition. (Hypoglycemia is the opposite — low blood sugar.)'
+    },
+    {
+      q: 'hypo- means:',
+      options: ['above', 'deficient, under', 'surrounding'],
+      correct: 1,
+      explain: '<strong>Hypo-</strong> = under/deficient (hypoglycemia, hypothermia). Its opposite is <strong>hyper-</strong>.'
+    },
+    {
+      q: 'Angioplasty:',
+      options: ['Surgical repair of heart', 'Fear of extremities', 'Therapy with chemicals', 'Surgical puncture of a blood vessel', 'Surgical repair of a blood vessel'],
+      correct: 4,
+      explain: '<strong>Angi/o</strong> = blood vessel, <strong>-plasty</strong> = surgical repair.'
+    },
+    {
+      q: 'Which is spelled correctly for "instrument to examine within"?',
+      options: ['endoscope', 'endoskope', 'endoscopy'],
+      correct: 0,
+      explain: 'The suffix <strong>-scope</strong> (instrument) is always spelled with a "c," not a "k." -scopy is the procedure; -scope is the tool.'
+    },
+    {
+      q: 'Supine means:',
+      options: ['Lying on back', 'Conducting toward structure', 'In front of body', 'Lying on belly', 'Pertaining to side'],
+      correct: 0,
+      explain: '<strong>Supine</strong> = lying on the back (face up). <strong>Prone</strong> is lying face-down on the belly.'
+    },
+    {
+      q: 'The opposite of -malacia is:',
+      options: ['-megaly', '-sclerosis', '-emia', '-plasia', '-lysis'],
+      correct: 1,
+      explain: '<strong>-malacia</strong> = softening; <strong>-sclerosis</strong> = hardening. Opposites.'
+    },
+    {
+      q: 'Absence of hair or hair loss:',
+      options: ['Erythroderma', 'Melanism', 'Xanthoderma', 'Albinism', 'Alopecia'],
+      correct: 4,
+      explain: '<strong>Alopecia</strong> = hair loss. (Erythroderma = red skin; xanthoderma = yellow skin; albinism = absence of pigment.)'
+    }
+  ];
+
+  // Word builder — break terms into prefix + root + suffix
+  // slots are an array of {label, value} representing the correct breakdown
+  // bank includes correct chips PLUS distractors
+  const BUILDER_TERMS = [
+    {
+      term: 'gastritis',
+      meaning: 'inflammation of the stomach',
+      slots: [{ label: 'root', value: 'gastr/o' }, { label: 'suffix', value: '-itis' }],
+      bank: ['gastr/o', '-itis', '-ectomy', 'arthr/o', '-tomy']
+    },
+    {
+      term: 'osteotomy',
+      meaning: 'incision of a bone',
+      slots: [{ label: 'root', value: 'oste/o' }, { label: 'suffix', value: '-tomy' }],
+      bank: ['oste/o', '-tomy', '-ectomy', 'arthr/o', '-itis', 'gastr/o']
+    },
+    {
+      term: 'bradycardia',
+      meaning: 'slow heart rate',
+      slots: [{ label: 'prefix', value: 'brady-' }, { label: 'root', value: 'cardi/o' }, { label: 'suffix', value: '-ia' }],
+      bank: ['brady-', 'cardi/o', '-ia', 'tachy-', '-itis', 'arthr/o']
+    },
+    {
+      term: 'hyperglycemia',
+      meaning: 'high level of sugar in the blood',
+      slots: [{ label: 'prefix', value: 'hyper-' }, { label: 'root', value: 'glyc/o' }, { label: 'suffix', value: '-emia' }],
+      bank: ['hyper-', 'glyc/o', '-emia', 'hypo-', '-uria', 'hem/o']
+    },
+    {
+      term: 'cystoscopy',
+      meaning: 'visual examination of the bladder',
+      slots: [{ label: 'root', value: 'cyst/o' }, { label: 'suffix', value: '-scopy' }],
+      bank: ['cyst/o', '-scopy', 'cyt/o', '-scope', '-ectomy']
+    },
+    {
+      term: 'angioplasty',
+      meaning: 'surgical repair of a blood vessel',
+      slots: [{ label: 'root', value: 'angi/o' }, { label: 'suffix', value: '-plasty' }],
+      bank: ['angi/o', '-plasty', 'arthr/o', '-tomy', '-ectomy']
+    },
+    {
+      term: 'dyspnea',
+      meaning: 'difficult breathing',
+      slots: [{ label: 'prefix', value: 'dys-' }, { label: 'suffix', value: '-pnea' }],
+      bank: ['dys-', '-pnea', 'an-', 'brady-', '-uria']
+    },
+    {
+      term: 'anuria',
+      meaning: 'absence of urine',
+      slots: [{ label: 'prefix', value: 'an-' }, { label: 'suffix', value: '-uria' }],
+      bank: ['an-', '-uria', 'dys-', '-emia', 'hyper-']
+    },
+    {
+      term: 'gastrectomy',
+      meaning: 'surgical removal of the stomach',
+      slots: [{ label: 'root', value: 'gastr/o' }, { label: 'suffix', value: '-ectomy' }],
+      bank: ['gastr/o', '-ectomy', 'oste/o', '-tomy', 'arthr/o', '-itis']
+    },
+    {
+      term: 'hepatomegaly',
+      meaning: 'enlargement of the liver',
+      slots: [{ label: 'root', value: 'hepat/o' }, { label: 'suffix', value: '-megaly' }],
+      bank: ['hepat/o', '-megaly', 'hem/o', '-malacia', '-sclerosis']
+    },
+    {
+      term: 'arthritis',
+      meaning: 'inflammation of a joint',
+      slots: [{ label: 'root', value: 'arthr/o' }, { label: 'suffix', value: '-itis' }],
+      bank: ['arthr/o', '-itis', 'oste/o', '-algia', '-tomy']
+    },
+    {
+      term: 'cytology',
+      meaning: 'study of cells',
+      slots: [{ label: 'root', value: 'cyt/o' }, { label: 'suffix', value: '-logy' }],
+      bank: ['cyt/o', '-logy', 'cyst/o', '-scopy', 'hepat/o']
+    }
+  ];
+
+  // Spelling drill — definitions where students type the term
+  const SPELLING_TERMS = [
+    { def: 'Visual examination of the urinary bladder', answer: 'cystoscopy', alternates: [] },
+    { def: 'Inflammation of a joint', answer: 'arthritis', alternates: [] },
+    { def: 'Slow heart rate', answer: 'bradycardia', alternates: [] },
+    { def: 'High level of sugar in the blood', answer: 'hyperglycemia', alternates: ['hyperglycaemia'] },
+    { def: 'Low level of sugar in the blood', answer: 'hypoglycemia', alternates: ['hypoglycaemia'] },
+    { def: 'Cancerous tumor', answer: 'carcinoma', alternates: [] },
+    { def: 'Bluish coloration of the skin', answer: 'cyanosis', alternates: [] },
+    { def: 'Difficult breathing', answer: 'dyspnea', alternates: ['dyspnoea'] },
+    { def: 'Absence of urine production', answer: 'anuria', alternates: [] },
+    { def: 'Incision of a bone', answer: 'osteotomy', alternates: [] },
+    { def: 'Tooth pain', answer: 'dentalgia', alternates: [] },
+    { def: 'Hair loss / absence of hair', answer: 'alopecia', alternates: [] },
+    { def: 'Surgical repair of a blood vessel', answer: 'angioplasty', alternates: [] },
+    { def: 'Resection (surgical removal) of the stomach', answer: 'gastrectomy', alternates: [] },
+    { def: 'Through the skin', answer: 'percutaneous', alternates: [] },
+    { def: 'Behind the abdomen', answer: 'retroperitoneal', alternates: [] },
+    { def: 'Protrusion of an eyeball', answer: 'exophthalmos', alternates: ['exophthalmus'] },
+    { def: 'Hives / wheals on the skin', answer: 'urticaria', alternates: [] },
+    { def: 'Study of cells', answer: 'cytology', alternates: [] },
+    { def: 'Instrument to examine within', answer: 'endoscope', alternates: [] }
+  ];
+
+  // ============================================================
+  // STATE
+  // ============================================================
+
+  let currentMode = 'home';
+  const app = document.getElementById('app');
+  const subtitle = document.getElementById('subtitle');
+
+  // Per-mode state
+  const flashState = { deck: 'all', cards: [], idx: 0, known: new Set(), review: new Set() };
+  const quizState  = { questions: [], idx: 0, answered: false, correct: 0, total: 0 };
+  const buildState = { items: [], idx: 0, placed: [], correct: 0, total: 0 };
+  const spellState = { items: [], idx: 0, correct: 0, total: 0, answered: false };
+
+  // ============================================================
+  // ROUTER
+  // ============================================================
+
+  function go(mode) {
+    currentMode = mode;
+    if (mode === 'home') {
+      subtitle.textContent = 'Pick a study mode to begin';
+      renderHome();
+    } else if (mode === 'flash') {
+      subtitle.textContent = 'Flip cards. Mark what you know. Drill what you don\'t.';
+      startFlashcards();
+    } else if (mode === 'quiz') {
+      subtitle.textContent = 'Test-style multiple choice with explanations';
+      startQuiz();
+    } else if (mode === 'build') {
+      subtitle.textContent = 'Break terms into their word parts';
+      startBuilder();
+    } else if (mode === 'spell') {
+      subtitle.textContent = 'Type the correct term from its definition';
+      startSpelling();
+    }
+  }
+
+  // ============================================================
+  // HOME SCREEN
+  // ============================================================
+
+  function renderHome() {
+    app.innerHTML = `
+      <div class="mode-grid">
+        <button class="mode-card" style="--card-accent: #ff8c5a" onclick="go('flash')">
+          <span class="mode-icon">📇</span>
+          <div class="mode-title">Flashcards</div>
+          <div class="mode-desc">Word parts and key terms with example uses. Self-rate to focus on what you don't know yet.</div>
+          <div class="mode-meta">${WORD_PARTS.length} cards</div>
+        </button>
+        <button class="mode-card" style="--card-accent: #6db3f2" onclick="go('quiz')">
+          <span class="mode-icon">🎯</span>
+          <div class="mode-title">Practice Quiz</div>
+          <div class="mode-desc">Multiple-choice questions modeled after the post-test. Each one comes with an explanation.</div>
+          <div class="mode-meta">${QUIZ_QUESTIONS.length} questions</div>
+        </button>
+        <button class="mode-card" style="--card-accent: #c084fc" onclick="go('build')">
+          <span class="mode-icon">🧩</span>
+          <div class="mode-title">Word Builder</div>
+          <div class="mode-desc">Drag word parts into prefix / root / suffix slots to build medical terms from their pieces.</div>
+          <div class="mode-meta">${BUILDER_TERMS.length} terms</div>
+        </button>
+        <button class="mode-card" style="--card-accent: #7dd87d" onclick="go('spell')">
+          <span class="mode-icon">⌨️</span>
+          <div class="mode-title">Spelling Drill</div>
+          <div class="mode-desc">Read the definition, type the term. The toughest part of medical terminology, made into a game.</div>
+          <div class="mode-meta">${SPELLING_TERMS.length} terms</div>
+        </button>
+      </div>
+    `;
+  }
+
+  // ============================================================
+  // SHARED HELPERS
+  // ============================================================
+
+  function topbarHTML(label, progressText) {
+    return `
+      <div class="topbar">
+        <button class="back-btn" onclick="go('home')">← All modes</button>
+        <span class="mode-label">${label}</span>
+        <span class="progress-readout">${progressText}</span>
+      </div>
+    `;
+  }
+
+  function progressBarHTML(pct) {
+    return `<div class="progress-bar"><div class="progress-fill" style="width: ${pct}%"></div></div>`;
+  }
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // ============================================================
+  // FLASHCARDS MODE
+  // ============================================================
+
+  const FLASH_DECKS = [
+    { id: 'all',    label: 'All Cards' },
+    { id: 'prefix', label: 'Prefixes' },
+    { id: 'suffix', label: 'Suffixes' },
+    { id: 'root',   label: 'Combining Forms' }
+  ];
+
+  function startFlashcards() {
+    loadFlashDeck('all');
+  }
+
+  function loadFlashDeck(id) {
+    flashState.deck = id;
+    flashState.cards = id === 'all' ? [...WORD_PARTS] : WORD_PARTS.filter(c => c.type === id);
+    flashState.cards.forEach((c, i) => c._id = `${c.type}-${c.part}-${i}`);
+    flashState.idx = 0;
+    flashState.known = new Set();
+    flashState.review = new Set();
+    renderFlash();
+  }
+
+  function renderFlash() {
+    const cards = flashState.cards;
+    const total = cards.length;
+
+    const deckButtons = FLASH_DECKS.map(d => `
+      <button class="deck-btn ${d.id === flashState.deck ? 'active' : ''}" onclick="loadFlashDeck('${d.id}')">${d.label}</button>
+    `).join('');
+
+    if (total === 0) {
+      app.innerHTML = topbarHTML('Flashcards', '0 / 0') + `
+        <div class="deck-picker">${deckButtons}</div>
+        <div class="complete"><div class="complete-emoji">📭</div><div class="complete-title">No cards in this deck</div></div>
+      `;
+      return;
+    }
+
+    const card = cards[flashState.idx];
+    const pct = ((flashState.idx + 1) / total) * 100;
+
+    app.innerHTML = topbarHTML('Flashcards',
+      `<span class="stats-pills"><span class="pill score">✓ ${flashState.known.size}</span><span class="pill" style="background: rgba(255,107,107,0.12); color: var(--red);">↻ ${flashState.review.size}</span></span> &nbsp; ${flashState.idx + 1} / ${total}`
+    ) + `
+      <div class="deck-picker">${deckButtons}</div>
+      ${progressBarHTML(pct)}
+
+      <div class="flash-stage">
+        <div class="flash-card" id="flashCard" onclick="flipFlash()">
+          <div class="flash-face">
+            <div class="panel-tag">${labelForType(card.type)}</div>
+            <div class="flash-term wordpart">${card.part}</div>
+            <div class="flash-hint">tap card or press <kbd>space</kbd> to flip</div>
+          </div>
+          <div class="flash-face flash-back">
+            <div class="panel-tag">Meaning</div>
+            <div class="flash-def">${card.meaning}</div>
+            ${card.example ? `<div class="flash-extra">${card.example}</div>` : ''}
+          </div>
+        </div>
+      </div>
+
+      <div id="ratingArea"></div>
+
+      <div class="controls">
+        <button class="nav-btn" ${flashState.idx === 0 ? 'disabled' : ''} onclick="navFlash(-1)">← Previous</button>
+        <button class="primary-btn" onclick="flipFlash()">Flip Card</button>
+        <button class="nav-btn" onclick="navFlash(1)">Next →</button>
+      </div>
+
+      <div class="utilities">
+        <button class="util-btn" onclick="shuffleFlash()">Shuffle deck</button>
+        <button class="util-btn" onclick="loadFlashDeck('${flashState.deck}')">Reset progress</button>
+        ${flashState.review.size > 0 ? `<button class="util-btn" onclick="reviewOnlyFlash()">Drill review pile (${flashState.review.size})</button>` : ''}
+      </div>
+
+      <div class="kbd-hint"><kbd>Space</kbd> flip · <kbd>←</kbd> <kbd>→</kbd> nav · <kbd>1</kbd> got it · <kbd>2</kbd> review</div>
+    `;
+  }
+
+  function labelForType(t) {
+    if (t === 'prefix') return 'Prefix';
+    if (t === 'suffix') return 'Suffix';
+    if (t === 'root') return 'Combining Form';
+    return '';
+  }
+
+  function flipFlash() {
+    const el = document.getElementById('flashCard');
+    if (!el) return;
+    el.classList.toggle('flipped');
+    const ratingArea = document.getElementById('ratingArea');
+    if (el.classList.contains('flipped')) {
+      ratingArea.innerHTML = `
+        <div class="rating">
+          <button class="rate-btn review" onclick="rateFlash('review')">↻ Need to Review</button>
+          <button class="rate-btn know" onclick="rateFlash('know')">✓ Got It</button>
+        </div>
+      `;
+    } else {
+      ratingArea.innerHTML = '';
+    }
+  }
+
+  function rateFlash(verdict) {
+    const card = flashState.cards[flashState.idx];
+    if (verdict === 'know') {
+      flashState.known.add(card._id);
+      flashState.review.delete(card._id);
+    } else {
+      flashState.review.add(card._id);
+      flashState.known.delete(card._id);
+    }
+    if (flashState.idx < flashState.cards.length - 1) {
+      navFlash(1);
+    } else {
+      showFlashComplete();
+    }
+  }
+
+  function navFlash(delta) {
+    const newIdx = flashState.idx + delta;
+    if (newIdx < 0) return;
+    if (newIdx >= flashState.cards.length) {
+      showFlashComplete();
+      return;
+    }
+    flashState.idx = newIdx;
+    renderFlash();
+  }
+
+  function shuffleFlash() {
+    flashState.cards = shuffle(flashState.cards);
+    flashState.idx = 0;
+    renderFlash();
+  }
+
+  function reviewOnlyFlash() {
+    flashState.cards = WORD_PARTS.filter(c => flashState.review.has(c._id || `${c.type}-${c.part}-${WORD_PARTS.indexOf(c)}`));
+    // re-id
+    flashState.cards.forEach((c, i) => c._id = `${c.type}-${c.part}-${i}`);
+    flashState.idx = 0;
+    flashState.known = new Set();
+    flashState.review = new Set();
+    renderFlash();
+  }
+
+  function showFlashComplete() {
+    const total = flashState.cards.length;
+    const known = flashState.known.size;
+    const review = flashState.review.size;
+    const pct = total > 0 ? Math.round((known / total) * 100) : 0;
+    let emoji = '🎉', title = 'Deck Complete!';
+    if (pct === 100) { emoji = '🌟'; title = 'Perfect Run!'; }
+    else if (pct >= 80) { emoji = '✨'; title = 'Great work!'; }
+    else if (pct >= 50) { emoji = '📚'; title = 'Solid progress!'; }
+    else { emoji = '💪'; title = 'Keep at it!'; }
+
+    app.innerHTML = topbarHTML('Flashcards', `${total} / ${total}`) + `
+      <div class="complete">
+        <div class="complete-emoji">${emoji}</div>
+        <div class="complete-title">${title}</div>
+        <div class="complete-stats">You marked <strong>${known}</strong> known and <strong>${review}</strong> for review.</div>
+        <div class="complete-actions">
+          ${review > 0 ? `<button class="primary-btn" onclick="reviewOnlyFlash()">Drill ${review} review card${review === 1 ? '' : 's'}</button>` : ''}
+          <button class="nav-btn" onclick="loadFlashDeck('${flashState.deck}')">Restart deck</button>
+          <button class="nav-btn" onclick="go('home')">Back to modes</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // ============================================================
+  // QUIZ MODE
+  // ============================================================
+
+  function startQuiz() {
+    quizState.questions = shuffle(QUIZ_QUESTIONS);
+    quizState.idx = 0;
+    quizState.answered = false;
+    quizState.correct = 0;
+    quizState.total = quizState.questions.length;
+    renderQuiz();
+  }
+
+  function renderQuiz() {
+    if (quizState.idx >= quizState.questions.length) {
+      showQuizComplete();
+      return;
+    }
+    const q = quizState.questions[quizState.idx];
+    const pct = ((quizState.idx) / quizState.total) * 100;
+
+    const optionsHTML = q.options.map((opt, i) => `
+      <button class="quiz-option" id="qopt-${i}" onclick="answerQuiz(${i})">
+        <span class="letter">${String.fromCharCode(65 + i)}.</span>
+        <span>${opt}</span>
+      </button>
+    `).join('');
+
+    app.innerHTML = topbarHTML('Practice Quiz',
+      `<span class="pill score">✓ ${quizState.correct}</span> &nbsp; ${quizState.idx + 1} / ${quizState.total}`
+    ) + `
+      ${progressBarHTML(pct)}
+      <div class="panel">
+        <div class="panel-tag">Question ${quizState.idx + 1}</div>
+        <div class="quiz-question">${q.q}</div>
+        <div class="quiz-options" id="quizOptions">${optionsHTML}</div>
+        <div class="explanation" id="explanation"><strong>Explanation:</strong> ${q.explain}</div>
+        <div class="controls" style="grid-template-columns: 1fr;">
+          <button class="primary-btn" id="nextQuizBtn" onclick="nextQuiz()" disabled>Next Question →</button>
+        </div>
+      </div>
+    `;
+    quizState.answered = false;
+  }
+
+  function answerQuiz(idx) {
+    if (quizState.answered) return;
+    quizState.answered = true;
+    const q = quizState.questions[quizState.idx];
+    const optEls = document.querySelectorAll('.quiz-option');
+    optEls.forEach((el, i) => {
+      el.disabled = true;
+      if (i === q.correct) el.classList.add('correct');
+      if (i === idx && i !== q.correct) el.classList.add('wrong');
+    });
+    if (idx === q.correct) quizState.correct++;
+    document.getElementById('explanation').classList.add('show');
+    document.getElementById('nextQuizBtn').disabled = false;
+  }
+
+  function nextQuiz() {
+    quizState.idx++;
+    if (quizState.idx >= quizState.questions.length) {
+      showQuizComplete();
+    } else {
+      renderQuiz();
+    }
+  }
+
+  function showQuizComplete() {
+    const pct = Math.round((quizState.correct / quizState.total) * 100);
+    let emoji = '🎉', title = 'Quiz Complete!';
+    if (pct === 100) { emoji = '🌟'; title = 'Perfect Score!'; }
+    else if (pct >= 90) { emoji = '🏆'; title = 'Excellent!'; }
+    else if (pct >= 80) { emoji = '✨'; title = 'Great Work!'; }
+    else if (pct >= 70) { emoji = '👍'; title = 'Good Effort!'; }
+    else { emoji = '💪'; title = 'Keep Studying!'; }
+
+    app.innerHTML = topbarHTML('Practice Quiz', `${quizState.total} / ${quizState.total}`) + `
+      <div class="complete">
+        <div class="complete-emoji">${emoji}</div>
+        <div class="complete-title">${title}</div>
+        <div class="complete-stats">You got <strong>${quizState.correct}</strong> out of <strong>${quizState.total}</strong> right — that's <strong>${pct}%</strong>.</div>
+        <div class="complete-actions">
+          <button class="primary-btn" onclick="startQuiz()">Take quiz again (shuffled)</button>
+          <button class="nav-btn" onclick="go('home')">Back to modes</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // ============================================================
+  // WORD BUILDER MODE
+  // ============================================================
+
+  function startBuilder() {
+    buildState.items = shuffle(BUILDER_TERMS);
+    buildState.idx = 0;
+    buildState.correct = 0;
+    buildState.total = buildState.items.length;
+    initBuilderRound();
+  }
+
+  function initBuilderRound() {
+    if (buildState.idx >= buildState.items.length) {
+      showBuilderComplete();
+      return;
+    }
+    const item = buildState.items[buildState.idx];
+    buildState.placed = item.slots.map(() => null);
+    renderBuilder();
+  }
+
+  function renderBuilder() {
+    const item = buildState.items[buildState.idx];
+    const pct = (buildState.idx / buildState.total) * 100;
+
+    const slotsHTML = item.slots.map((s, i) => {
+      const placed = buildState.placed[i];
+      const filled = placed !== null;
+      const allCorrect = buildState.placed.every((p, j) => p === item.slots[j].value);
+      return `
+        <div class="slot ${filled ? 'filled' : ''} ${filled && allCorrect ? 'correct' : ''}" onclick="clearSlot(${i})">
+          <div class="slot-label">${s.label}</div>
+          <div class="slot-content">${placed || '—'}</div>
+        </div>
+      `;
+    }).join('');
+
+    const allCorrect = item.slots.length > 0 && buildState.placed.every((p, j) => p === item.slots[j].value);
+    const allFilled = buildState.placed.every(p => p !== null);
+
+    const bankHTML = item.bank.map((chip, i) => {
+      const used = buildState.placed.includes(chip);
+      return `<button class="chip ${used ? 'used' : ''}" ${used ? 'disabled' : ''} onclick="placeChip('${chip.replace(/'/g, "\\'")}')">${chip}</button>`;
+    }).join('');
+
+    app.innerHTML = topbarHTML('Word Builder',
+      `<span class="pill score">✓ ${buildState.correct}</span> &nbsp; ${buildState.idx + 1} / ${buildState.total}`
+    ) + `
+      ${progressBarHTML(pct)}
+      <div class="panel">
+        <div class="panel-tag">Build the term</div>
+        <div class="builder-term">${item.term}</div>
+        <div class="builder-prompt">"${item.meaning}"</div>
+        <div class="slots">${slotsHTML}</div>
+        <div class="word-bank">${bankHTML}</div>
+        ${allCorrect ? `
+          <div class="explanation show"><strong>Correct!</strong> ${item.term} = ${item.slots.map(s => s.value).join(' + ')}.</div>
+          <div class="controls" style="grid-template-columns: 1fr;">
+            <button class="primary-btn" onclick="nextBuilder()">Next Term →</button>
+          </div>
+        ` : allFilled ? `
+          <div class="explanation show" style="border-left-color: var(--red); color: var(--red);"><strong>Not quite.</strong> Click a slot to clear it and try again.</div>
+        ` : ''}
+        <div class="utilities" style="margin-top: 14px;">
+          <button class="util-btn" onclick="resetBuilderRound()">Reset this term</button>
+          ${!allCorrect ? `<button class="util-btn" onclick="skipBuilder()">Skip / show answer</button>` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  function placeChip(chip) {
+    const item = buildState.items[buildState.idx];
+    // Find first empty slot
+    const slotIdx = buildState.placed.findIndex(p => p === null);
+    if (slotIdx === -1) return;
+    buildState.placed[slotIdx] = chip;
+    // Check if completed correctly
+    const allCorrect = buildState.placed.every((p, j) => p === item.slots[j].value);
+    const allFilled = buildState.placed.every(p => p !== null);
+    if (allCorrect) {
+      buildState.correct++;
+    }
+    renderBuilder();
+  }
+
+  function clearSlot(idx) {
+    if (buildState.placed[idx] !== null) {
+      buildState.placed[idx] = null;
+      renderBuilder();
+    }
+  }
+
+  function resetBuilderRound() {
+    const item = buildState.items[buildState.idx];
+    buildState.placed = item.slots.map(() => null);
+    renderBuilder();
+  }
+
+  function skipBuilder() {
+    const item = buildState.items[buildState.idx];
+    buildState.placed = item.slots.map(s => s.value);
+    renderBuilder();
+  }
+
+  function nextBuilder() {
+    buildState.idx++;
+    initBuilderRound();
+  }
+
+  function showBuilderComplete() {
+    const pct = Math.round((buildState.correct / buildState.total) * 100);
+    let emoji = '🎉', title = 'Builder Complete!';
+    if (pct === 100) { emoji = '🌟'; title = 'Perfect Build!'; }
+    else if (pct >= 80) { emoji = '✨'; title = 'Great Work!'; }
+    else if (pct >= 50) { emoji = '🧩'; title = 'Solid Progress!'; }
+    else { emoji = '💪'; title = 'Keep Building!'; }
+
+    app.innerHTML = topbarHTML('Word Builder', `${buildState.total} / ${buildState.total}`) + `
+      <div class="complete">
+        <div class="complete-emoji">${emoji}</div>
+        <div class="complete-title">${title}</div>
+        <div class="complete-stats">You built <strong>${buildState.correct}</strong> of <strong>${buildState.total}</strong> correctly — <strong>${pct}%</strong>.</div>
+        <div class="complete-actions">
+          <button class="primary-btn" onclick="startBuilder()">Try again (shuffled)</button>
+          <button class="nav-btn" onclick="go('home')">Back to modes</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // ============================================================
+  // SPELLING DRILL MODE
+  // ============================================================
+
+  function startSpelling() {
+    spellState.items = shuffle(SPELLING_TERMS);
+    spellState.idx = 0;
+    spellState.correct = 0;
+    spellState.total = spellState.items.length;
+    spellState.answered = false;
+    renderSpelling();
+  }
+
+  function renderSpelling() {
+    if (spellState.idx >= spellState.items.length) {
+      showSpellingComplete();
+      return;
+    }
+    const item = spellState.items[spellState.idx];
+    const pct = (spellState.idx / spellState.total) * 100;
+
+    app.innerHTML = topbarHTML('Spelling Drill',
+      `<span class="pill score">✓ ${spellState.correct}</span> &nbsp; ${spellState.idx + 1} / ${spellState.total}`
+    ) + `
+      ${progressBarHTML(pct)}
+      <div class="panel">
+        <div class="panel-tag">Type the term</div>
+        <div class="spell-prompt">
+          <div class="spell-def">${item.def}</div>
+          <div class="spell-hint">${item.answer.length} letters · starts with "${item.answer[0]}"</div>
+        </div>
+        <div class="spell-input-wrap">
+          <input class="spell-input" id="spellInput" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="type your answer..." />
+          <button class="primary-btn" id="checkBtn" onclick="checkSpelling()">Check</button>
+        </div>
+        <div class="spell-feedback" id="spellFeedback"></div>
+        <div class="controls" style="grid-template-columns: 1fr;">
+          <button class="primary-btn" id="nextSpellBtn" onclick="nextSpelling()" style="display:none;">Next Term →</button>
+        </div>
+        <div class="utilities">
+          <button class="util-btn" onclick="revealSpelling()">Don't know — reveal answer</button>
+        </div>
+      </div>
+    `;
+
+    const inp = document.getElementById('spellInput');
+    inp.focus();
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !spellState.answered) checkSpelling();
+      else if (e.key === 'Enter' && spellState.answered) nextSpelling();
+    });
+    spellState.answered = false;
+  }
+
+  function checkSpelling() {
+    if (spellState.answered) return;
+    const item = spellState.items[spellState.idx];
+    const inp = document.getElementById('spellInput');
+    const guess = inp.value.trim().toLowerCase();
+    if (!guess) return;
+    spellState.answered = true;
+    inp.disabled = true;
+    document.getElementById('checkBtn').style.display = 'none';
+    document.getElementById('nextSpellBtn').style.display = 'inline-block';
+    const feedback = document.getElementById('spellFeedback');
+    const correct = guess === item.answer.toLowerCase() || (item.alternates && item.alternates.includes(guess));
+    if (correct) {
+      spellState.correct++;
+      inp.classList.add('correct');
+      feedback.classList.add('show', 'correct');
+      feedback.innerHTML = `<strong>Correct!</strong> "${item.answer}" — ${item.def.toLowerCase()}.`;
+    } else {
+      inp.classList.add('wrong');
+      feedback.classList.add('show', 'wrong');
+      feedback.innerHTML = `<strong>Not quite.</strong> The correct spelling is <strong style="color: var(--ink);">${item.answer}</strong>.`;
+    }
+    document.getElementById('nextSpellBtn').focus();
+  }
+
+  function revealSpelling() {
+    if (spellState.answered) return;
+    const item = spellState.items[spellState.idx];
+    const inp = document.getElementById('spellInput');
+    inp.value = item.answer;
+    spellState.answered = true;
+    inp.disabled = true;
+    inp.classList.add('wrong');
+    document.getElementById('checkBtn').style.display = 'none';
+    document.getElementById('nextSpellBtn').style.display = 'inline-block';
+    const feedback = document.getElementById('spellFeedback');
+    feedback.classList.add('show', 'wrong');
+    feedback.innerHTML = `Answer revealed: <strong style="color: var(--ink);">${item.answer}</strong>.`;
+    document.getElementById('nextSpellBtn').focus();
+  }
+
+  function nextSpelling() {
+    spellState.idx++;
+    renderSpelling();
+  }
+
+  function showSpellingComplete() {
+    const pct = Math.round((spellState.correct / spellState.total) * 100);
+    let emoji = '🎉', title = 'Drill Complete!';
+    if (pct === 100) { emoji = '🌟'; title = 'Perfect Spelling!'; }
+    else if (pct >= 90) { emoji = '🏆'; title = 'Excellent!'; }
+    else if (pct >= 75) { emoji = '✨'; title = 'Great Work!'; }
+    else if (pct >= 50) { emoji = '⌨️'; title = 'Good Progress!'; }
+    else { emoji = '💪'; title = 'Keep Practicing!'; }
+
+    app.innerHTML = topbarHTML('Spelling Drill', `${spellState.total} / ${spellState.total}`) + `
+      <div class="complete">
+        <div class="complete-emoji">${emoji}</div>
+        <div class="complete-title">${title}</div>
+        <div class="complete-stats">You spelled <strong>${spellState.correct}</strong> of <strong>${spellState.total}</strong> correctly — <strong>${pct}%</strong>.</div>
+        <div class="complete-actions">
+          <button class="primary-btn" onclick="startSpelling()">Try again (shuffled)</button>
+          <button class="nav-btn" onclick="go('home')">Back to modes</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // ============================================================
+  // GLOBAL KEYBOARD
+  // ============================================================
+
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (currentMode === 'flash') {
+      const card = document.getElementById('flashCard');
+      if (e.key === ' ') { e.preventDefault(); flipFlash(); }
+      else if (e.key === 'ArrowLeft') navFlash(-1);
+      else if (e.key === 'ArrowRight') navFlash(1);
+      else if (e.key === '1' && card && card.classList.contains('flipped')) rateFlash('know');
+      else if (e.key === '2' && card && card.classList.contains('flipped')) rateFlash('review');
+    }
+  });
+
+  // INIT
+  go('home');
+</script>
+</body>
+</html>
