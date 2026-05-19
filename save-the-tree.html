@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Save the Tree — Medical Terminology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #fdf9f0;
+    --bg-soft: #f5ecd9;
+    --bg-card: #ffffff;
+    --ink: #2a2520;
+    --ink-soft: #6b5f51;
+    --ink-muted: #998b78;
+    --accent: #2e7d3a;           /* leaf green */
+    --accent-soft: #5cb36c;
+    --accent-deep: #1e5a26;
+    --bark: #6b4423;
+    --bark-light: #8b5a2b;
+    --gold: #c89b3c;
+    --warm: #e8703a;
+    --red: #c23636;
+    --red-bg: #f5d8d8;
+    --green-bg: #d8eedc;
+    --border: rgba(42, 37, 32, 0.12);
+    --border-strong: rgba(42, 37, 32, 0.28);
+    --paper-shadow: rgba(120, 100, 70, 0.18);
+    --sky: #e8f4f4;
+  }
+
+  html, body {
+    min-height: 100%;
+    background: linear-gradient(180deg, var(--sky) 0%, var(--bg) 60%);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  body {
+    min-height: 100vh;
+    padding: 24px 16px 40px;
+  }
+
+  .wrapper {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 18px;
+  }
+
+  .eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: clamp(1.7rem, 4.5vw, 2.4rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  h1 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+
+  .subtitle {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    margin-top: 8px;
+  }
+
+  /* GAME PANEL */
+  .panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 22px;
+    box-shadow: 0 4px 18px var(--paper-shadow);
+    margin-bottom: 16px;
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .stat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: var(--bg-soft);
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .stat-pill.score { background: var(--green-bg); color: var(--accent); }
+  .stat-pill.lives { background: rgba(46, 125, 58, 0.13); color: var(--accent); }
+
+  /* TREE VISUAL */
+  .tree-stage {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+
+  .tree-svg {
+    width: 100%;
+    max-width: 340px;
+    height: 260px;
+  }
+
+  .leaf {
+    transition: opacity 0.6s ease, transform 1.2s cubic-bezier(0.36, 0, 0.66, -0.56);
+    transform-origin: center;
+  }
+
+  .leaf.fallen {
+    opacity: 0;
+    transform: translate(40px, 200px) rotate(720deg);
+  }
+
+  /* HINT */
+  .hint {
+    text-align: center;
+    margin-bottom: 16px;
+    padding: 14px 18px;
+    background: var(--bg-soft);
+    border-radius: 10px;
+    border-left: 3px solid var(--accent);
+  }
+
+  .hint-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .hint-text {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.05rem, 3vw, 1.3rem);
+    color: var(--ink);
+    line-height: 1.35;
+  }
+
+  /* WORD DISPLAY */
+  .word-display {
+    text-align: center;
+    margin-bottom: 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(1.2rem, 4vw, 1.8rem);
+    letter-spacing: 0.4em;
+    font-weight: 600;
+    color: var(--ink);
+    word-break: break-all;
+    min-height: 2.2em;
+  }
+
+  .word-letter {
+    display: inline-block;
+    min-width: 0.9em;
+    border-bottom: 2px solid var(--ink-muted);
+    padding-bottom: 4px;
+    margin: 0 3px;
+    transition: color 0.25s, border-color 0.25s;
+  }
+
+  .word-letter.revealed {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .word-letter.space {
+    border-bottom: none;
+    min-width: 0.4em;
+  }
+
+  /* KEYBOARD */
+  .keyboard {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .key {
+    background: var(--bg-card);
+    border: 1.5px solid var(--border-strong);
+    color: var(--ink);
+    padding: 10px 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .key:hover:not(:disabled) {
+    background: var(--bg-soft);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .key:disabled { cursor: not-allowed; }
+
+  .key.correct {
+    background: var(--green-bg);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .key.wrong {
+    background: var(--red-bg);
+    border-color: var(--red);
+    color: var(--red);
+    opacity: 0.6;
+  }
+
+  /* ROUND END SCREENS */
+  .round-end {
+    text-align: center;
+    padding: 22px 18px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    animation: fadeIn 0.4s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .round-end.win {
+    background: var(--green-bg);
+    border: 2px solid var(--accent);
+  }
+
+  .round-end.lose {
+    background: var(--bg-soft);
+    border: 2px solid var(--border-strong);
+  }
+
+  .round-end-emoji { font-size: 2.4rem; margin-bottom: 6px; }
+
+  .round-end-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .round-end.win .round-end-title { color: var(--accent); }
+
+  .round-end-text {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+  }
+
+  .round-end-text .answer {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+
+  /* BUTTONS */
+  .actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .primary-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px 26px;
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 999px;
+    letter-spacing: 0.03em;
+    transition: all 0.2s;
+    box-shadow: 0 4px 14px rgba(46, 125, 58, 0.3);
+  }
+
+  .primary-btn:hover { background: var(--accent-deep); transform: translateY(-1px); }
+
+  .secondary-btn {
+    background: transparent;
+    border: 1.5px solid var(--border-strong);
+    color: var(--ink);
+    padding: 11px 20px;
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.2s;
+  }
+
+  .secondary-btn:hover {
+    background: var(--bg-soft);
+    border-color: var(--accent);
+  }
+
+  /* INSTRUCTIONS */
+  .instructions {
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  /* MOBILE */
+  @media (max-width: 480px) {
+    .keyboard { grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .key { padding: 8px 0; font-size: 0.85rem; }
+    .word-display { letter-spacing: 0.25em; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrapper">
+    <header>
+      <div class="eyebrow">Medical Terminology · Word Game</div>
+      <h1>Save the <em>Tree</em></h1>
+      <div class="subtitle">Guess the medical term letter by letter. Wrong guesses make leaves fall — keep the tree healthy!</div>
+    </header>
+    <main id="app"></main>
+  </div>
+
+<script>
+// =====================================================================
+// WORD LIST — all 20 medical terminology final exam terms with hints
+// =====================================================================
+const WORDS = [
+  { word: 'HEMATOLOGY',       hint: 'Study of blood' },
+  { word: 'RHINOPLASTY',      hint: 'Surgical repair of the nose' },
+  { word: 'ARTERIOSCLEROSIS', hint: 'Hardening of the arteries' },
+  { word: 'THORACOTOMY',      hint: 'Incision into the chest' },
+  { word: 'COLONOSCOPY',      hint: 'Visual examination of the colon' },
+  { word: 'LACTATION',        hint: 'Process of secreting milk' },
+  { word: 'PROCTOSCOPE',      hint: 'Instrument used to examine the rectum' },
+  { word: 'PNEUMONIA',        hint: 'Condition of the lungs (inflammation/infection)' },
+  { word: 'VENOSTASIS',       hint: 'Stoppage or slowing of blood flow in a vein' },
+  { word: 'NECROSIS',         hint: 'Abnormal condition of tissue death' },
+  { word: 'EPIGASTRIC',       hint: 'Pertaining to above the stomach' },
+  { word: 'TACHYCARDIA',      hint: 'Condition of a fast heart rate' },
+  { word: 'DEHYDRATION',      hint: 'Condition of excessive water loss' },
+  { word: 'HYPERTHYROIDISM',  hint: 'Condition of excessive thyroid gland activity' },
+  { word: 'PERICARDITIS',     hint: 'Inflammation of the sac surrounding the heart' },
+  { word: 'INTRAVENOUS',      hint: 'Pertaining to within a vein' },
+  { word: 'ENCEPHALOPATHY',   hint: 'Disease of the brain' },
+  { word: 'DYSMENORRHEA',     hint: 'Painful or difficult menstrual flow' },
+  { word: 'SUBLINGUAL',       hint: 'Pertaining to under the tongue' },
+  { word: 'OSTEOSARCOMA',     hint: 'Malignant tumor of bone and connective tissue' }
+];
+
+const MAX_WRONG = 8; // 8 leaves on the tree
+const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+// =====================================================================
+// STATE
+// =====================================================================
+let currentWord = null;
+let guessedLetters = new Set();
+let wrongCount = 0;
+let solved = 0;       // words solved this session
+let attempted = 0;    // words attempted this session
+let roundOver = false;
+let wordQueue = [];   // shuffled word list, so we don't repeat until all are used
+
+const app = document.getElementById('app');
+
+// =====================================================================
+// HELPERS
+// =====================================================================
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function nextWord() {
+  if (wordQueue.length === 0) wordQueue = shuffle(WORDS);
+  return wordQueue.shift();
+}
+
+// =====================================================================
+// SVG TREE — 8 leaves arranged in a canopy
+// =====================================================================
+//
+// Each leaf has a unique id (leaf-0 through leaf-7). When a wrong guess
+// happens, we add the .fallen class to the next leaf in order, which
+// triggers the CSS transition for the falling animation.
+
+function treeSVG() {
+  return `
+    <svg class="tree-svg" viewBox="0 0 340 260" xmlns="http://www.w3.org/2000/svg">
+      <!-- Ground -->
+      <ellipse cx="170" cy="250" rx="130" ry="8" fill="#8b5a2b" opacity="0.25"/>
+
+      <!-- Trunk -->
+      <path d="M 158 250 L 162 160 Q 165 145 170 145 Q 175 145 178 160 L 182 250 Z"
+            fill="#6b4423" stroke="#3d2818" stroke-width="1.5"/>
+
+      <!-- Branches -->
+      <path d="M 168 175 Q 145 165 130 145" stroke="#6b4423" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M 172 175 Q 195 165 210 145" stroke="#6b4423" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M 170 155 Q 155 140 145 125" stroke="#6b4423" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M 170 155 Q 185 140 195 125" stroke="#6b4423" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+      <!-- Sun -->
+      <circle cx="290" cy="40" r="22" fill="#fcd34d" opacity="0.8"/>
+      <circle cx="290" cy="40" r="16" fill="#fef3c7" opacity="0.9"/>
+
+      <!-- Leaves (8 total, arranged around canopy) -->
+      <g class="leaf" id="leaf-0">
+        <ellipse cx="100" cy="120" rx="22" ry="28" fill="#5cb36c" stroke="#2e7d3a" stroke-width="1.5" transform="rotate(-25 100 120)"/>
+      </g>
+      <g class="leaf" id="leaf-1">
+        <ellipse cx="140" cy="95" rx="24" ry="30" fill="#3e9a4f" stroke="#1e5a26" stroke-width="1.5" transform="rotate(-10 140 95)"/>
+      </g>
+      <g class="leaf" id="leaf-2">
+        <ellipse cx="170" cy="80" rx="26" ry="32" fill="#5cb36c" stroke="#2e7d3a" stroke-width="1.5"/>
+      </g>
+      <g class="leaf" id="leaf-3">
+        <ellipse cx="200" cy="95" rx="24" ry="30" fill="#3e9a4f" stroke="#1e5a26" stroke-width="1.5" transform="rotate(10 200 95)"/>
+      </g>
+      <g class="leaf" id="leaf-4">
+        <ellipse cx="235" cy="120" rx="22" ry="28" fill="#5cb36c" stroke="#2e7d3a" stroke-width="1.5" transform="rotate(25 235 120)"/>
+      </g>
+      <g class="leaf" id="leaf-5">
+        <ellipse cx="115" cy="150" rx="20" ry="25" fill="#3e9a4f" stroke="#1e5a26" stroke-width="1.5" transform="rotate(-35 115 150)"/>
+      </g>
+      <g class="leaf" id="leaf-6">
+        <ellipse cx="170" cy="135" rx="24" ry="28" fill="#5cb36c" stroke="#2e7d3a" stroke-width="1.5"/>
+      </g>
+      <g class="leaf" id="leaf-7">
+        <ellipse cx="220" cy="150" rx="20" ry="25" fill="#3e9a4f" stroke="#1e5a26" stroke-width="1.5" transform="rotate(35 220 150)"/>
+      </g>
+    </svg>
+  `;
+}
+
+// =====================================================================
+// GAME RENDERING
+// =====================================================================
+function startRound() {
+  currentWord = nextWord();
+  guessedLetters = new Set();
+  wrongCount = 0;
+  roundOver = false;
+  render();
+}
+
+function render() {
+  const wordHTML = currentWord.word.split('').map((ch) => {
+    if (ch === ' ' || ch === '-') return `<span class="word-letter space">${ch === '-' ? '-' : ''}</span>`;
+    const revealed = guessedLetters.has(ch);
+    return `<span class="word-letter ${revealed ? 'revealed' : ''}">${revealed ? ch : ''}</span>`;
+  }).join('');
+
+  const keyboardHTML = ALPHABET.map(letter => {
+    let cls = 'key';
+    let disabled = '';
+    if (guessedLetters.has(letter)) {
+      const isCorrect = currentWord.word.includes(letter);
+      cls += isCorrect ? ' correct' : ' wrong';
+      disabled = 'disabled';
+    }
+    if (roundOver) disabled = 'disabled';
+    return `<button class="${cls}" ${disabled} onclick="guess('${letter}')">${letter}</button>`;
+  }).join('');
+
+  const leavesRemaining = MAX_WRONG - wrongCount;
+  const isWin = currentWord.word.split('').every(ch => ch === ' ' || ch === '-' || guessedLetters.has(ch));
+  const isLose = wrongCount >= MAX_WRONG;
+
+  let endHTML = '';
+  if (roundOver) {
+    if (isWin) {
+      endHTML = `
+        <div class="round-end win">
+          <div class="round-end-emoji">🌳✨</div>
+          <div class="round-end-title">You saved the tree!</div>
+          <div class="round-end-text">The word was <span class="answer">${escapeHtml(currentWord.word)}</span> — ${escapeHtml(currentWord.hint.toLowerCase())}.</div>
+        </div>
+      `;
+    } else {
+      endHTML = `
+        <div class="round-end lose">
+          <div class="round-end-emoji">🍂</div>
+          <div class="round-end-title">All the leaves fell.</div>
+          <div class="round-end-text">The word was <span class="answer">${escapeHtml(currentWord.word)}</span> — ${escapeHtml(currentWord.hint.toLowerCase())}.</div>
+          <div class="round-end-text">The tree will grow new leaves next round!</div>
+        </div>
+      `;
+    }
+  }
+
+  app.innerHTML = `
+    <div class="stats-bar">
+      <span class="stat-pill score">🌳 Saved: ${solved} / ${attempted}</span>
+      <span class="stat-pill lives">🍃 Leaves left: ${leavesRemaining}</span>
+    </div>
+
+    <div class="panel">
+      <div class="tree-stage">${treeSVG()}</div>
+
+      <div class="hint">
+        <div class="hint-label">Definition</div>
+        <div class="hint-text">${escapeHtml(currentWord.hint)}</div>
+      </div>
+
+      <div class="word-display">${wordHTML}</div>
+
+      ${endHTML}
+
+      ${roundOver ? `
+        <div class="actions">
+          <button class="primary-btn" onclick="startRound()">Next Word →</button>
+          <button class="secondary-btn" onclick="resetSession()">Reset Score</button>
+        </div>
+      ` : `
+        <div class="keyboard">${keyboardHTML}</div>
+        <div class="instructions">Click a letter or use your keyboard. Wrong guesses make a leaf fall.</div>
+      `}
+    </div>
+  `;
+
+  // Apply fallen state to leaves based on wrongCount
+  for (let i = 0; i < wrongCount; i++) {
+    const leaf = document.getElementById(`leaf-${i}`);
+    if (leaf) leaf.classList.add('fallen');
+  }
+}
+
+// =====================================================================
+// GAME LOGIC
+// =====================================================================
+function guess(letter) {
+  if (roundOver) return;
+  if (guessedLetters.has(letter)) return;
+
+  guessedLetters.add(letter);
+  const isCorrect = currentWord.word.includes(letter);
+
+  if (!isCorrect) {
+    wrongCount++;
+  }
+
+  // Check win/lose
+  const isWin = currentWord.word.split('').every(ch => ch === ' ' || ch === '-' || guessedLetters.has(ch));
+  const isLose = wrongCount >= MAX_WRONG;
+
+  if (isWin || isLose) {
+    roundOver = true;
+    attempted++;
+    if (isWin) solved++;
+  }
+
+  render();
+}
+
+function resetSession() {
+  solved = 0;
+  attempted = 0;
+  wordQueue = [];
+  startRound();
+}
+
+// =====================================================================
+// KEYBOARD INPUT
+// =====================================================================
+document.addEventListener('keydown', (e) => {
+  if (roundOver) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      startRound();
+    }
+    return;
+  }
+  const key = e.key.toUpperCase();
+  if (key.length === 1 && key >= 'A' && key <= 'Z') {
+    guess(key);
+  }
+});
+
+// =====================================================================
+// INIT
+// =====================================================================
+startRound();
+</script>
+</body>
+</html>
